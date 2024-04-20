@@ -19,12 +19,82 @@ const key = "ilovecats";
 const app = new Koa();
 
 Sentry.init({
-  dsn: "https://7fb5bd26a8795154b1565b01bf5d6fd3@o4507120577740800.ingest.de.sentry.io/4507120579903568",
+  dsn: "https://017c3d1e30d3c2515a53e28cf56950b8@o4507120577740800.ingest.de.sentry.io/4507121230217296",
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+
+  integrations: [
+    // Automatically instrument Node.js libraries and frameworks
+    ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
+  ],
 });
 
+const requestHandler = (ctx, next) => {
+  Sentry.runWithAsyncContext(() => {
+    const scope = Sentry.getCurrentScope();
+    scope.addEventProcessor((event) =>
+      Sentry.addRequestDataToEvent(event, ctx.request, {
+        include: {
+          user: false,
+        },
+      })
+    );
+
+    next();
+  });
+};
+
+// this tracing middleware creates a transaction per request
+const tracingMiddleWare = (ctx, next) => {
+  const reqMethod = (ctx.method || "").toUpperCase();
+  const reqUrl = ctx.url && stripUrlQueryAndFragment(ctx.url);
+
+  // connect to trace of upstream app
+  let traceparentData;
+  if (ctx.request.get("sentry-trace")) {
+    traceparentData = Sentry.extractTraceparentData(
+      ctx.request.get("sentry-trace")
+    );
+  }
+
+  const transaction = Sentry.startTransaction({
+    name: `${reqMethod} ${reqUrl}`,
+    op: "http.server",
+    ...traceparentData,
+  });
+
+  ctx.__sentry_transaction = transaction;
+
+  // We put the transaction on the scope so users can attach children to it
+  Sentry.getCurrentScope().setSpan(transaction);
+
+  ctx.res.on("finish", () => {
+    // Push `transaction.finish` to the next event loop so open spans have a chance to finish before the transaction closes
+    setImmediate(() => {
+      // if using koa router, a nicer way to capture transaction using the matched route
+      if (ctx._matchedRoute) {
+        const mountPath = ctx.mountPath || "";
+        transaction.setName(`${reqMethod} ${mountPath}${ctx._matchedRoute}`);
+      }
+      transaction.setHttpStatus(ctx.status);
+      transaction.finish();
+    });
+  });
+
+  next();
+};
+
+app.use(requestHandler);
+app.use(tracingMiddleWare);
+
+// usual error handler
 app.on("error", (err, ctx) => {
   Sentry.withScope((scope) => {
-    scope.setSDKProcessingMetadata({ request: ctx.request });
+    scope.addEventProcessor((event) => {
+      return Sentry.addRequestDataToEvent(event, ctx.request);
+    });
     Sentry.captureException(err);
   });
 });
