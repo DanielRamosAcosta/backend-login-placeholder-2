@@ -1,0 +1,19 @@
+{
+  "name": "backend-login-placeholder-2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/bodyparser": "^5.1.1",
+    "@koa/router": "^12.0.1",
+    "@sentry/node": "^7.111.0",
+    "@sentry/utils": "^7.111.0",
+    "jsonwebtoken": "^9.0.2",
+    "koa": "^2.15.3"
+  }
+}
