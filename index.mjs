@@ -6,6 +6,7 @@ import logger from "koa-logger";
 import * as Sentry from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import { stripUrlQueryAndFragment } from "@sentry/utils";
+import cors from "@koa/cors";
 
 const port = process.env.PORT || 8000;
 
@@ -187,5 +188,6 @@ router
   });
 
 app.use(router.routes()).use(router.allowedMethods());
+app.use(cors());
 
 app.listen(port);
