@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { bodyParser } from "@koa/bodyparser";
 import logger from "koa-logger";
 import * as Sentry from "@sentry/node";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import { stripUrlQueryAndFragment } from "@sentry/utils";
 
 const port = process.env.PORT || 8000;
 
@@ -28,6 +30,7 @@ Sentry.init({
   integrations: [
     // Automatically instrument Node.js libraries and frameworks
     ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
+    nodeProfilingIntegration(),
   ],
 });
 

@@ -12,6 +12,7 @@
     "@koa/bodyparser": "^5.1.1",
     "@koa/router": "^12.0.1",
     "@sentry/node": "^7.111.0",
+    "@sentry/profiling-node": "^7.111.0",
     "@sentry/utils": "^7.111.0",
     "jsonwebtoken": "^9.0.2",
     "koa": "^2.15.3",
