@@ -20,7 +20,6 @@ const API_TOKEN =
 const key = "ilovecats";
 
 const app = new Koa();
-/*
 Sentry.init({
   dsn: "https://017c3d1e30d3c2515a53e28cf56950b8@o4507120577740800.ingest.de.sentry.io/4507121230217296",
 
@@ -43,7 +42,7 @@ app.on("error", (err, ctx) => {
     });
     Sentry.captureException(err);
   });
-});*/
+});
 
 app.use(cors());
 app.use(bodyParser());
