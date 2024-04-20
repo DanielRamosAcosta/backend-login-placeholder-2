@@ -2,6 +2,7 @@ import Koa from "koa";
 import Router from "@koa/router";
 import jwt from "jsonwebtoken";
 import { bodyParser } from "@koa/bodyparser";
+import logger from "koa-logger";
 import * as Sentry from "@sentry/node";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -27,6 +28,7 @@ app.on("error", (err, ctx) => {
 });
 
 app.use(bodyParser());
+app.use(logger());
 
 const router = new Router();
 
