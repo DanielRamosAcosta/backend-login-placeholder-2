@@ -5,6 +5,8 @@ import { bodyParser } from "@koa/bodyparser";
 import logger from "koa-logger";
 import * as Sentry from "@sentry/node";
 
+const port = process.env.PORT || 8000;
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const RIGHT_EMAIL = "linustorvalds@gmail.com";
@@ -171,4 +173,4 @@ router
 
 app.use(router.routes()).use(router.allowedMethods());
 
-app.listen(8000);
+app.listen(port);
